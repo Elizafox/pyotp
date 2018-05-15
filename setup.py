@@ -18,9 +18,10 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Elizafox/pyotp",
-    author="Elizabeth Myers",  # Optional
-    author_email="elizabeth@interlinked.me",  # Optional
-    classifiers=[  # Optional
+    author="Elizabeth Myers",
+    author_email="elizabeth@interlinked.me",
+    license="WTFPL version 2",
+    classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Build Tools",
