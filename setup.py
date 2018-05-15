@@ -32,7 +32,8 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
-    keywords="hotp totp",
+    python_requires="~=3.4",
+    keywords="hotp totp development",
     packages=find_packages(exclude=["docs", "tests"]),
     project_urls={
         "Bug Reports": "https://github.com/Elizafox/pyotp/issues",
