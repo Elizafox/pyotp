@@ -26,7 +26,10 @@ def get_totp_code(secret, timestamp=None, length=6, grace_period=30,
     you are doing, due to interoperability concerns.
     """
     if timestamp is None:
-        timestamp = time()
+        timestamp = int(time())
+
+    # 64-bit timestamps only
+    timestamp &= 0xFFFFFFFFFFFFFFFF
 
     timestamp //= grace_period
 
@@ -47,10 +50,10 @@ def check_totp(code, secret, timestamp=None, grace_period=30,
     Note this has nothing to do with below and above, which are separate
     options; below and above specify a range, whereas the grace period is
     a factor the time is divided by.
-    
+
     It is not recommended to use any algorithm but SHA1 unless you know what
     you are doing, due to interoperability concerns.
-    
+
     below and above specify values less than and greater than the timestamp to
     check, respectively. For example, given Unix time 500, with above and below
     at 10, it will check 490 and 510 as well. This is to account for client
@@ -60,10 +63,23 @@ def check_totp(code, secret, timestamp=None, grace_period=30,
     help mitigate timing attacks.
     """
     if timestamp is None:
-        timestamp = time()
+        timestamp = int(time())
 
-    start = (timestamp - below) // grace_period
-    end = (timestamp + above) // grace_period
+    # 64-bit timestamps only
+    timestamp &= 0xFFFFFFFFFFFFFFFF
+
+    start = timestamp - below
+    end = timestamp + above
+
+    if start < 0:
+        start = 0
+
+    # Cap at 64 bits
+    end &= 0xFFFFFFFFFFFFFFFF
+
+    start //= grace_period
+    end //= grace_period
+
     if constant_time:
         return check_range_constant(code, secret, hash_algorithm, start, end)
     else:

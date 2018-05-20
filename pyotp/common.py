@@ -4,7 +4,7 @@
 """This module is designed for internal use by pyotp."""
 
 from time import time as unix_time
-from hmac import new as new_hmac, compare_digest
+from hmac import compare_digest, new as new_hmac
 
 
 # These constants were taken from RFC 6238
@@ -42,10 +42,10 @@ def get_code(secret, value, length, hash_algorithm):
 
 def code_range(secret, length, hash_algorithm, start, end):
     # Return codes in a given range
-    for ctr in range(start, end):
+    for i in range(start, end+1):
         # 64-bit integers only, please!
-        ctr &= 0xFFFFFFFFFFFFFFFF
-        yield get_code(secret, ctr, length, hash_algorithm)
+        i &= 0xFFFFFFFFFFFFFFFF
+        yield get_code(secret, i, length, hash_algorithm)
 
 
 def check_range(code, secret, hash_algorithm, start, end):
