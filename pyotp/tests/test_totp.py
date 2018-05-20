@@ -9,7 +9,13 @@ from pyotp.constants import HashAlgorithm
 
 class TestTOTPGeneration(TestCase):
     # Test vectors taken from RFC 6238
-    secret = b"12345678901234567890"
+    secret_algo = {
+        HashAlgorithm.SHA1: b"12345678901234567890",
+        HashAlgorithm.SHA256: b"12345678901234567890123456789012",
+        HashAlgorithm.SHA512: b"1234567890123456789012345678901234567890" \
+                              b"123456789012345678901234",
+    }
+
     tests = [
         (59, "94287082", HashAlgorithm.SHA1),
         (59, "46119246", HashAlgorithm.SHA256),
@@ -34,32 +40,36 @@ class TestTOTPGeneration(TestCase):
     def test_totp_generate(self):
         """Ensure TOTP generation works correctly."""
         for (time, expected, algorithm) in self.tests:
-            s = totp.get_totp_code(self.secret, time, length=len(expected),
+            secret = self.secret_algo[algorithm]
+
+            s = totp.get_totp_code(secret, time, length=len(expected),
                                    hash_algorithm=algorithm)
-            with self.subTest(secret=self.secret, time=time,
+            with self.subTest(secret=secret, time=time,
                               algorithm=algorithm, expected=expected, got=s):
                 self.assertEqual(s, expected)
 
     def test_totp_check_valid(self):
         """Ensure TOTP range checks work correctly."""
         for (time, code, algorithm) in self.tests:
-            check = totp.check_totp(code, self.secret, time,
+            secret = self.secret_algo[algorithm]
+
+            check = totp.check_totp(code, secret, time,
                                     hash_algorithm=algorithm)
-            with self.subTest(secret=self.secret, time=time, code=code,
+            with self.subTest(secret=secret, time=time, code=code,
                               algorithm=algorithm, check=check,
                               msg="Ensure matching code is accepted"):
                 self.assertTrue(check)
 
-            check = totp.check_totp(code, self.secret, time+10,
+            check = totp.check_totp(code, secret, time+10,
                                     hash_algorithm=algorithm)
-            with self.subTest(secret=self.secret, time=time, code=code,
+            with self.subTest(secret=secret, time=time, code=code,
                               check=check,
                               msg="Ensure code within window (+) is accepted"):
                 self.assertTrue(check)
             
-            check = totp.check_totp(code, self.secret, time-10,
+            check = totp.check_totp(code, secret, time-10,
                                     hash_algorithm=algorithm)
-            with self.subTest(secret=self.secret, time=time, code=code,
+            with self.subTest(secret=secret, time=time, code=code,
                               algorithm=algorithm, check=check,
                               msg="Ensure code within window (-) is accepted"):
                 self.assertTrue(check)
@@ -67,20 +77,22 @@ class TestTOTPGeneration(TestCase):
     def test_totp_check_invalid(self):
         """Ensure incorrect codes are rejected."""
         test = self.tests[0]
-        check = totp.check_totp(test[1], self.secret, test[0]+120,
+        secret = self.secret_algo[test[2]]
+
+        check = totp.check_totp(test[1], secret, test[0]+120,
                                 hash_algorithm=test[2])
-        with self.subTest(secret=self.secret, check=check, counter=1,
+        with self.subTest(secret=secret, check=check, counter=1,
                           msg="Ensure time below range is rejected"):
             self.assertFalse(check)
         
-        check = totp.check_totp(test[1], self.secret, test[0]-120,
+        check = totp.check_totp(test[1], secret, test[0]-120,
                                 hash_algorithm=test[2])
-        with self.subTest(secret=self.secret, check=check, counter=1,
+        with self.subTest(secret=secret, check=check, counter=1,
                           msg="Ensure time below range is rejected"):
             self.assertFalse(check)
         
-        check = totp.check_totp("00000000", self.secret, test[0],
+        check = totp.check_totp("00000000", secret, test[0],
                                 hash_algorithm=test[2])
-        with self.subTest(secret=self.secret, check=check, counter=0,
+        with self.subTest(secret=secret, check=check, counter=0,
                            msg="Ensure invalid secret is rejected"):
             self.assertFalse(check)

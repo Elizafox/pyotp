@@ -31,7 +31,7 @@ def get_code(secret, value, length, hash_algorithm):
 
     digest = new_hmac(secret, value, hash_algorithm.value).digest()
 
-    offset = digest[-1] & 0x0f
+    offset = digest[-1] & 0xf
 
     code = int.from_bytes(digest[offset:offset+4], "big")
     code &= 0x7FFFFFFF
