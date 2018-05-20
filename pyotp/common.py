@@ -6,8 +6,6 @@
 from time import time as unix_time
 from hmac import new as new_hmac, compare_digest
 
-from pyotp.constants import HashAlgorithm, SecretEncoding
-
 
 # These constants were taken from RFC 6238
 _digits_mod = {
@@ -31,7 +29,7 @@ def get_code(secret, value, length, hash_algorithm):
     if not isinstance(value, bytes):
         value = value.to_bytes(8, "big")
 
-    digest = new_hmac(secret, value, hash_algorithm.value)
+    digest = new_hmac(secret, value, hash_algorithm.value).digest()
 
     offset = digest[-1] & 0x0f
 
@@ -65,7 +63,6 @@ def check_range(code, secret, hash_algorithm, start, end):
 def check_range_constant(code, secret, hash_algorithm, start, end):
     # Same as above, but constant-time-ish. No promises!
     length = len(code)
-
     for comp in code_range(secret, length, hash_algorithm, start, end):
         if compare_digest(code, comp):
             return True

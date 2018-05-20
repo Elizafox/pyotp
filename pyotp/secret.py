@@ -5,7 +5,8 @@ import base64
 
 from secrets import token_bytes
 
-from pyotp.constants import SecretEncoding
+from pyotp.constants import SecretEncoding, SecretLength
+
 
 # Map constants to encoding algorithms
 _encoding_map = {

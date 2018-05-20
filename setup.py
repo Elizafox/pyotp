@@ -34,7 +34,9 @@ setup(
     ],
     python_requires="~=3.4",
     keywords="hotp totp development",
-    packages=find_packages(exclude=["docs", "tests"]),
+    packages=find_packages(exclude=["docs"]),
+    test_suite="nose.collector",
+    tests_require=["nose"],
     project_urls={
         "Bug Reports": "https://github.com/Elizafox/pyotp/issues",
         "Funding": "https://patreon.com/Elizafox",

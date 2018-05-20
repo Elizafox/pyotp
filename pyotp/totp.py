@@ -62,10 +62,8 @@ def check_totp(code, secret, timestamp=None, grace_period=30,
     if timestamp is None:
         timestamp = time()
 
-    timestamp //= grace_period
-
-    start = timestamp - below
-    end = timestamp + above
+    start = (timestamp - below) // grace_period
+    end = (timestamp + above) // grace_period
     if constant_time:
         return check_range_constant(code, secret, hash_algorithm, start, end)
     else:
